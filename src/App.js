@@ -1,23 +1,19 @@
-import logo from './logo.svg';
-import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import { Container } from 'react-bootstrap';
+import NavbarNs from './Components/Nav';
+import ServiceCard from './Components/Services';
+
 
 function App() {
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <NavbarNs></NavbarNs>
+      <h1>Selecciona el Servicio Deseado</h1>
+      <Container style = {{display:"flex"}}>
+        <ServiceCard title="Solicita un Servicio"></ServiceCard>
+        <ServiceCard title="Solicita una Capacitación"></ServiceCard>     
+      </Container>
+
     </div>
   );
 }
