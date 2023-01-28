@@ -8,8 +8,8 @@ function App() {
   return (
     <div className="App">
       <NavbarNs></NavbarNs>
-      <h1>Selecciona el Servicio Deseado</h1>
-      <Container style = {{display:"flex"}}>
+      <h1 className='home'>Selecciona el Servicio Deseado</h1>
+      <Container className='home' style = {{display:"flex"}}>
         <ServiceCard title="Solicita un Servicio"></ServiceCard>
         <ServiceCard title="Solicita una Capacitación"></ServiceCard>     
       </Container>

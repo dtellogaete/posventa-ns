@@ -1,4 +1,5 @@
 import {Navbar, Container} from 'react-bootstrap'
+import ThemeProvider from 'react-bootstrap/ThemeProvider'
 
 const NavbarNs = () => {
     return (
@@ -8,12 +9,11 @@ const NavbarNs = () => {
             <Navbar.Brand href="#home">
               <img
                 alt=""
-                src="img/logo.png"
-                width="30"
-                height="30"
+                src="img/ns.png"              
+                height="40px"
                 className="d-inline-block align-top"
               />            
-            </Navbar.Brand>
+            </Navbar.Brand>            
             <h1>National Soft</h1>
           </Container>
         </Navbar>
