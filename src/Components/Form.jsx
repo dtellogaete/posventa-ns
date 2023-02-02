@@ -91,11 +91,10 @@ const handleChange = (event) => {
 
 console.log(formData)
 
-    return (
-      
+    return (      
       <div className=" App FormService">          
        <NavbarNs></NavbarNs>        
-        <Container className='home'  style = {{display:"flex"}}>
+        <Container className='home'  style = {{ width: 'auto'}}>
           <Row style={{display: "flex"}}>
             <Form style={{textAlign: 'left'}}>
               <Form.Group className="mb-3" controlId="formBasicName" required>
@@ -209,36 +208,42 @@ console.log(formData)
               </Form.Group>
               <Form.Group className="mb-3" controlId="formBasicHardware">
                 <Form.Label>Los equipos de computo <span class="required"> *</span></Form.Label>
-                  {['radio'].map((type) => (
-                    <div key={`inline-${type}`} className="mb-3">
-                      <Form.Check
-                        required
-                        inline
-                        label="El cliente no adquirió los equipos"                     
-                        type={type}
-                        id="qEquipment"                     
-                        value= {formData.qEquipment}
-                        onChange={handleChange}
-                      />
-                      <Form.Check
-                        inline
-                        label="Solicitarlos en almacén"                    
-                        type={type}
-                        id="qEquipment"
-                        name="qEquipment"
-                        value= {formData.qEquipment}   
-                        onChange={handleChange}
-                      /> 
-                      <Form.Check
-                        inline
-                        label="Ya fueron entregados al cliente"                 
-                        type={type}
-                        id="qEquipment"
-                        name="qEquipment"
-                        value= {formData.qEquipment}     
-                        onChange={handleChange}
-                      />                       
-                    </div>
+                {['radio'].map((type) => (
+                  <div key={`inline-${type}`} className="mb-3">
+                    <Form.Check
+                      required
+                      inline
+                      label="El cliente no adquirió los equipos"                     
+                      type={type}
+                      id="qEquipment1"
+                      name="qEquipment1"                     
+                      value="El cliente no adquirió los equipos" 
+                      checked={formData.qEquipment === "El cliente no adquirió los equipos" }
+                      onChange={handleChange}
+                    />
+                    <Form.Check
+                   
+                      inline
+                      label="Solicitarlos en almacén"                    
+                      type={type}
+                      id="qEquipment2"
+                      name="qEquipment2"
+                      value="Solicitarlos en almacén" 
+                      checked={formData.qEquipment === "Solicitarlos en almacén" }   
+                      onChange={handleChange}
+                    /> 
+                    <Form.Check
+                      
+                      inline
+                      label="Ya fueron entregados al cliente"                 
+                      type={type}
+                      id="qEquipment3"
+                      name="qEquipment3"
+                      value="Ya fueron entregados al cliente" 
+                      checked={formData.qEquipment === "Ya fueron entregados al cliente"}     
+                      onChange={handleChange}
+                    />                       
+                  </div>
                   ))}
               </Form.Group>
               <Form.Group className="mb-3" controlId="formBasicHardware">

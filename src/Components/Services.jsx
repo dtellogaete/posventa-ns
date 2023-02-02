@@ -3,10 +3,10 @@ import Card from 'react-bootstrap/Card';
 
 const ServiceCard = (props) => {
 
-    const {title, img, url} = props;
+  const {title, img, url} = props;
 
   return (
-    <Card style={{ width: '18rem' }}>
+    <Card style={{ width: 'auto' }}>
       <Card.Img variant="top" src={img} />
       <Card.Body>
         <Card.Title>{title}</Card.Title>
