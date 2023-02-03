@@ -27,8 +27,39 @@ function FormService() {
 
   const createPDF = () => {
     const documentDefinition = { 
-        content: 'Hello World'
+      content: [
+        {
+          text: 'Solicitud de Servicio\n\n',
+          style: 'header',
+          alignment: 'center'
+        },
+        
+        {
+          style: 'tableExample',
+          table: {
+            widths: [100, '*', 200, '*'],
+            headerRows: 1,
+            body: [
+              ['1. Identificación del sistema'],
+              ['fixed-width cells have exactly the specified width', {text: 'nothing interesting here', italics: true, color: 'gray'}, {text: 'nothing interesting here', italics: true, color: 'gray'}, {text: 'nothing interesting here', italics: true, color: 'gray'}]
+            ],
+            
+          }
+        },
+      ],
+      styles: {
+        header: {
+          fontSize: 18,
+          bold: true,
+          alignment: 'justify'
+        }
+      }
     };
+
+    
+      
+      
+    
     pdfMake.createPdf(documentDefinition).download();
 }
   const [selectedOption, setSelectedOption] = useState("");
@@ -48,6 +79,7 @@ function FormService() {
 
   const handleClick = () => {
     window.open('https://nationalsoft.openser.com/indexPublic.html#PortalPublic', '_blank');
+    createPDF();
   };
 
 
