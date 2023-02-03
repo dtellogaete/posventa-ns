@@ -12,6 +12,11 @@ import Form from 'react-bootstrap/Form';
 import {  FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 
+import mongoose from 'mongoose';
+
+
+
+
 /* Generador de PDF */
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
@@ -38,6 +43,12 @@ function FormService() {
     },
   });
 
+  /* Button */
+  
+
+  const handleClick = () => {
+    window.open('https://nationalsoft.openser.com/indexPublic.html#PortalPublic', '_blank');
+  };
 
 
   /* Campo Address Deshabilitdo */
@@ -60,6 +71,11 @@ const handleChange = event => {
 
 /* Forms */
 
+const [checkComp, setcheckComp] = useState({
+  cServer: {processor: '', ram:'', memory: '', os: '', internet:''},
+  cStation: {processor: '', ram:'', memory: '', os: ''},
+});
+
 const [formData, setFormData] = useState({
   id: '', 
   name: '',
@@ -76,28 +92,45 @@ const [formData, setFormData] = useState({
   qLogo: '',
   qReq: '',
   qCSD: '',
-  qNodes: '',
+  qNode: '',
   qNotification: '',
-  cServer: {processor: '', ram:'', memory: '', os: '', internet:''},
-  cStation: {processor: '', ram:'', memory: '', os: ''},
+  cServer: checkComp.cServer,
+  cStation: checkComp.cStation,
 })
+
+
+
+
+
 
 const handleChange = (event) => {
   setFormData({
     ...formData,
-    [event.target.id]: event.target.value
+    [event.target.id]: event.target.value,
   });
 }
 
-console.log(formData)
+const handleChangeCompu = (event) => {
+  const { id, name, value } = event.target;
+  setcheckComp((prevState) => ({
+    ...prevState,
+    [id]: {
+      ...prevState[id],
+      [name]: value,
+    },
+  }));
+};
 
+console.log(checkComp)
+console.log(formData)
+console.log("hola")
     return (      
       <div className=" App FormService">          
        <NavbarNs></NavbarNs>        
         <Container className='home'  style = {{ width: 'auto'}}>
           <Row style={{display: "flex"}}>
             <Form style={{textAlign: 'left'}}>
-              <Form.Group className="mb-3" controlId="formBasicName" required>
+              <Form.Group className="mb-3" id="formBasicName" required>
                 <Form.Label>Nombre Comercial<span class="required"> *</span></Form.Label>
                 <Form.Control 
                   type="text" 
@@ -107,7 +140,7 @@ console.log(formData)
                   id = "name" 
                   required />        
               </Form.Group>
-              <Form.Group className="mb-3" controlId="formBasicContact">
+              <Form.Group className="mb-3" >
                 <Form.Label>Contacto <span class="required"> *</span></Form.Label>
                 <Form.Control 
                   type="text" 
@@ -117,7 +150,7 @@ console.log(formData)
                   onChange={handleChange} 
                   required/>        
               </Form.Group>
-              <Form.Group className="mb-3" controlId="formImplementation">
+              <Form.Group className="mb-3" >
                 <Form.Label>Servicio <span class="required"> *</span></Form.Label>
                 <Form.Control as="select" name="service" required onChange={handleChange} id="service">
                   <option value="">Selecciona una opción</option>
@@ -125,7 +158,7 @@ console.log(formData)
                   <option value={formData.service}>En Sitio</option>
                 </Form.Control>
               </Form.Group>
-              <Form.Group className="mb-3" controlId="formBasicAddress"  type="text">
+              <Form.Group className="mb-3"   type="text">
                 <Form.Label>Dirección</Form.Label>
                 <Form.Control 
                   type="text" 
@@ -136,7 +169,7 @@ console.log(formData)
                   onChange ={handleChange}
                   />        
               </Form.Group>
-              <Form.Group className="mb-3" controlId="formBasicPhone">
+              <Form.Group className="mb-3" >
                 <Form.Label>Teléfono <span class="required"> *</span></Form.Label>
                 <Form.Control 
                   type="tel" 
@@ -146,7 +179,7 @@ console.log(formData)
                   onChange ={handleChange}
                   required/>        
               </Form.Group>
-              <Form.Group className="mb-3" controlId="formBasicEmail">
+              <Form.Group className="mb-3" >
                 <Form.Label>Correo Electrónico <span class="required"> *</span></Form.Label>
                 <Form.Control 
                   type="email" 
@@ -156,7 +189,7 @@ console.log(formData)
                   onChange={handleChange}
                   required/>                
               </Form.Group>              
-              <Form.Group className="mb-3" controlId="formBasicEjecutivo">
+              <Form.Group className="mb-3" >
                 <Form.Label>Elabora <span class="required"> *</span></Form.Label>
                 <Form.Control 
                   type="text" 
@@ -166,7 +199,7 @@ console.log(formData)
                   onChange={handleChange}
                   required />        
               </Form.Group>
-              <Form.Group className="mb-3" controlId="formSoft">
+              <Form.Group className="mb-3" >
                 <Form.Label>Sistema <span class="required"> *</span></Form.Label>
                 <Form.Control 
                   as="select"
@@ -183,7 +216,7 @@ console.log(formData)
                   <option>Autofactura / Analytics </option>
                 </Form.Control>
               </Form.Group>              
-              <Form.Group className="mb-3" controlId="formKindService">
+              <Form.Group className="mb-3" >
                 <Form.Label>Tipo de Servicio <span class="required"> *</span></Form.Label>
                 <Form.Control as="select"
                   id="kind"
@@ -196,7 +229,7 @@ console.log(formData)
                   <option>Cambio de Servidor</option>               
                 </Form.Control>
               </Form.Group>
-              <Form.Group className="mb-3" controlId="formBasicFolio">
+              <Form.Group className="mb-3">
                 <Form.Label>Folio Factura <span class="required"> *</span></Form.Label>
                 <Form.Control 
                   type="text" 
@@ -206,45 +239,43 @@ console.log(formData)
                   onChange={handleChange}
                   required/>        
               </Form.Group>
-              <Form.Group className="mb-3" controlId="formBasicHardware">
-                <Form.Label>Los equipos de computo <span class="required"> *</span></Form.Label>
-                {['radio'].map((type) => (
+              <Form.Group className="mb-3" >
+                <Form.Label>Los equipos de computo <span className="required"> *</span></Form.Label>
+                  {['radio'].map((type) => (
                   <div key={`inline-${type}`} className="mb-3">
                     <Form.Check
                       required
                       inline
-                      label="El cliente no adquirió los equipos"                     
+                      label="El cliente no adquirió los equipos" 
+                      name="qEquipment"
                       type={type}
-                      id="qEquipment1"
-                      name="qEquipment1"                     
+                      id="qEquipment"
                       value="El cliente no adquirió los equipos" 
-                      checked={formData.qEquipment === "El cliente no adquirió los equipos" }
+                      checked={formData.qEquipment === "El cliente no adquirió los equipos"}
                       onChange={handleChange}
                     />
                     <Form.Check
-                   
                       inline
-                      label="Solicitarlos en almacén"                    
+                      label="Solicitarlos en almacén" 
+                      name="qEquipment"
                       type={type}
-                      id="qEquipment2"
-                      name="qEquipment2"
+                      id="qEquipment"
                       value="Solicitarlos en almacén" 
-                      checked={formData.qEquipment === "Solicitarlos en almacén" }   
+                      checked={formData.qEquipment  === "Solicitarlos en almacén"}
                       onChange={handleChange}
-                    /> 
+                    />
                     <Form.Check
-                      
-                      inline
-                      label="Ya fueron entregados al cliente"                 
+                      inline                    
+                      label="Ya fueron entregados al cliente" 
+                      name="qEquipment"
                       type={type}
-                      id="qEquipment3"
-                      name="qEquipment3"
+                      id="qEquipment"
                       value="Ya fueron entregados al cliente" 
-                      checked={formData.qEquipment === "Ya fueron entregados al cliente"}     
+                      checked={formData.qEquipment === "Ya fueron entregados al cliente"}
                       onChange={handleChange}
-                    />                       
+                    />
                   </div>
-                  ))}
+                ))}                
               </Form.Group>
               <Form.Group className="mb-3" controlId="formBasicHardware">
                 <Form.Label>¿El cliente cuenta con su logo en formato editable PNG/JPEG?<span class="required"> *</span></Form.Label>
@@ -255,18 +286,20 @@ console.log(formData)
                       inline
                       label="Si"                      
                       type={type}
-                      id={`inline-${type}-1`}
+                      id="qLogo"
                       name="qLogo"
-                      value= "Si"     
+                      value= "Si" 
+                      checked={formData.qLogo === "Si"}        
                       onChange={handleChange}                      
                     />
                     <Form.Check
                       inline
                       label="No"                    
                       type={type}
-                      id={`inline-${type}-2`}
+                      id="qLogo"
                       name="qLogo"
-                      value= "No"     
+                      value= "No" 
+                      checked={formData.qLogo === "No"}    
                       onChange={handleChange} 
                     />                                   
                   </div>
@@ -281,19 +314,21 @@ console.log(formData)
                       inline
                       label="Si"                      
                       type={type}
-                      id={`inline-${type}-1`}
+                      id="qReq"
                       name="qReq"
-                      value= "Si"     
+                      value= "Si" 
+                      checked={formData.qReq === "Si"}    
                       onChange={handleChange} 
                     />
                     <Form.Check
                       inline
                       label="No"                    
                       type={type}
-                      id={`inline-${type}-2`}
+                      id="qReq"
                       name="qReq"
-                      value= "No"     
-                      onChange={handleChange}
+                      value= "No" 
+                      checked={formData.qReq === "No"}    
+                      onChange={handleChange} 
                     />                                   
                   </div>
                 ))}
@@ -307,19 +342,21 @@ console.log(formData)
                       inline
                       label="Si"                      
                       type={type}
-                      id={`inline-${type}-1`}
+                      id="qCSD"
                       name="qCSD"
                       value= "Si"     
-                      onChange={handleChange}
+                      checked={formData.qCSD === "Si"}    
+                      onChange={handleChange} 
                     />
                     <Form.Check
                       inline
                       label="No"                     
                       type={type}
-                      id={`inline-${type}-2`}
+                      id="qCSD"
                       name="qCSD"
                       value= "No"     
-                      onChange={handleChange}
+                      checked={formData.qCSD === "No"}    
+                      onChange={handleChange} 
                     />                                   
                   </div>
                 ))}
@@ -333,18 +370,20 @@ console.log(formData)
                       inline
                       label="Si"                  
                       type={type}
-                      id={`inline-${type}-1`}
+                      id="qNode"
                       name="qNode"
-                      value= "Si"     
+                      value= "Si"
+                      checked={formData.qNode === "Si"}         
                       onChange={handleChange}
                     />
                     <Form.Check
                       inline
                       label="No"                     
                       type={type}
-                      id={`inline-${type}-2`}
+                      id="qNode"
                       name="qNode"
-                      value= "No"     
+                      value= "No"
+                      checked={formData.qNode === "No"}     
                       onChange={handleChange}
                     />                                   
                   </div>
@@ -359,18 +398,20 @@ console.log(formData)
                       inline
                       label="Si"                     
                       type={type}
-                      id={`inline-${type}-1`}
+                      id="qNotification"
                       name="qNotification"
-                      value= "Si"     
+                      value= "Si"
+                      checked={formData.qNotification === "Si"}         
                       onChange={handleChange}
                     />
                     <Form.Check
                       inline
                       label="No"                    
                       type={type}
-                      id={`inline-${type}-2`}
+                      id="qNotification"
                       name="qNotification"
-                      value= "No"     
+                      value= "No"
+                      checked={formData.qNotification === "No"}     
                       onChange={handleChange}
                     />                                   
                   </div>
@@ -384,46 +425,51 @@ console.log(formData)
                       inline
                       label="Procesador Intel/amd i/ryzen 3+"                      
                       type={type}
-                      id={`inline-${type}-1`}
-                      name="cServer.processor"
-                      value= "Procesador Intel/amd i/ryzen 3+"     
-                      onChange={handleChange}
+                      id="cServer"
+                      name="processor"
+                      value= "Procesador Intel/amd i/ryzen 3+" 
+                      checked={checkComp.cServer.processor === "Procesador Intel/amd i/ryzen 3+" }    
+                      onChange={handleChangeCompu}
                     />
                     <Form.Check
                       inline
                       label="Memoria Ram 4GB +"                     
                       type={type}
-                      id={`inline-${type}-2`}
-                      name="cServer.ram" 
-                      value= "Memoria Ram 4GB +"    
-                      onChange={handleChange}
+                      id="cServer"
+                      name="ram"
+                      value= "Memoria Ram 4GB +" 
+                      checked={checkComp.cServer.ram === "Memoria Ram 4GB +"  }     
+                      onChange={handleChangeCompu}
                     />
                     <Form.Check
                       inline
                       label="HDD 64GB+"                      
                       type={type}
-                      id={`inline-${type}-3`}
-                      name="cServer.memory" 
-                      value= "HDD 64GB+"    
-                      onChange={handleChange}
+                      id="cServer"
+                      name="memory"
+                      value= "HDD 64GB+" 
+                      checked={checkComp.cServer.memory === "HDD 64GB+"  }     
+                      onChange={handleChangeCompu}
                     />
                     <Form.Check
                       inline
                       label="Windows 8+ Home/PRO"                     
                       type={type}
-                      id={`inline-${type}-4`}
-                      name="cServer.so" 
-                      value= "Windows 8+ Home/PRO"     
-                      onChange={handleChange}
+                      id="cServer"
+                      name="so"
+                      value= "Windows 8+ Home/PRO" 
+                      checked={checkComp.cServer.so ==="Windows 8+ Home/PRO"}     
+                      onChange={handleChangeCompu}
                     />
                     <Form.Check
                       inline
                       label="Internet Explorer 9+"                      
                       type={type}
-                      id={`inline-${type}-5`}                      
-                      name="cServer.internet" 
+                      id="cServer"
+                      name="internet"
                       value= "Internet Explorer 9+" 
-                      onChange={handleChange}
+                      checked={checkComp.cServer.internet ==="Internet Explorer 9+"} 
+                      onChange={handleChangeCompu}
                     />                                                                
                   </div>
                 ))}
@@ -436,50 +482,52 @@ console.log(formData)
                       inline
                       label="Procesador Intel/amd i/ryzen 3+"                      
                       type={type}
-                      id={`inline-${type}-1`}
-                      name="cStation.processor"
-                      value= "Procesador Intel/amd i/ryzen 3+"     
-                      onChange={handleChange}
+                      id="cStation"
+                      name="processor"
+                      value= "Procesador Intel/amd i/ryzen 3+" 
+                      checked={checkComp.cStation.processor === "Procesador Intel/amd i/ryzen 3+" }    
+                      onChange={handleChangeCompu}
                     />
                     <Form.Check
                       inline
-                      label="Memoria Ram 4GB +"                
+                      label="Memoria Ram 4GB +"                     
                       type={type}
-                      id={`inline-${type}-2`}
-                      name="cStation.ram" 
-                      value= "Memoria Ram 4GB +"    
-                      onChange={handleChange}
+                      id="cStation"
+                      name="ram"
+                      value= "Memoria Ram 4GB +" 
+                      checked={checkComp.cStation.ram === "Memoria Ram 4GB +"  }     
+                      onChange={handleChangeCompu}
                     />
                     <Form.Check
                       inline
-                      label="HDD 64GB+"             
+                      label="HDD 64GB+"                      
                       type={type}
-                      id={`inline-${type}-3`}
-                      name="cStation.memory" 
-                      value= "HDD 64GB+"    
-                      onChange={handleChange}
+                      id="cStation"
+                      name="memory"
+                      value= "HDD 64GB+" 
+                      checked={checkComp.cStation.memory === "HDD 64GB+"  }     
+                      onChange={handleChangeCompu}
                     />
                     <Form.Check
                       inline
                       label="Windows 8+ Home/PRO"                     
                       type={type}
-                      id={`inline-${type}-4`}
-                      name="cStation.so" 
-                      value= "Windows 8+ Home/PRO"     
-                      onChange={handleChange}
-                    />                                                            
+                      id="cStation"
+                      name="so"
+                      value= "Windows 8+ Home/PRO" 
+                      checked={checkComp.cStation.so ==="Windows 8+ Home/PRO"}     
+                      onChange={handleChangeCompu}
+                    />                                                                            
                   </div>
                 ))}
               </Form.Group>              
-              <Button variant="danger" type="submit">
+              <Button variant="danger" type="submit" onClick={handleClick}>
                 Enviar Formulario
               </Button>
             </Form>        
           </Row>      
         </Container>
-        <Footer style={{minHeight: '100vh'}}></Footer>
- 
-          
+        <Footer style={{minHeight: '100vh'}}></Footer>         
       </div>
       
     );
