@@ -12,10 +12,9 @@ import Form from 'react-bootstrap/Form';
 import {  FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 
-import mongoose from 'mongoose';
 
-
-
+/* Datos */
+import sales from '../Data/sales'
 
 /* Generador de PDF */
 import pdfMake from 'pdfmake/build/pdfmake';
@@ -25,43 +24,56 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 function FormService() {
 
-  const createPDF = () => {
+  const hola ="holaaa";
+
+  const createPDF = (dataset) => {
+    console.log("hola hola")
     const documentDefinition = { 
       content: [
         {
-          text: 'Solicitud de Servicio\n\n',
+          text: 'Solicitud de Servicio N°10\n',
           style: 'header',
           alignment: 'center'
         },
-        
         {
           style: 'tableExample',
           table: {
             widths: [100, '*', 200, '*'],
-            headerRows: 1,
-            body: [
-              ['1. Identificación del sistema'],
-              ['fixed-width cells have exactly the specified width', {text: 'nothing interesting here', italics: true, color: 'gray'}, {text: 'nothing interesting here', italics: true, color: 'gray'}, {text: 'nothing interesting here', italics: true, color: 'gray'}]
-            ],
-            
+            body: [              
+              [{text: '1. Datos Generales', style: 'tableHeader', colSpan: 4, bold: true, fillColor:'#F5F5F5', alignment: 'center'}, {}, {}, {}],
+              [{text: 'Nombre Comercial: '+dataset.name, colSpan: 4}, {}, {}, {}],              
+              [{text: 'Contacto: '+dataset.contact, colSpan: 4,}, {}, {}, {}],
+              [{text: 'Dirección: '+dataset.address,},  {text: 'Teléfono: '+dataset.phone,}],
+              [{text: 'Teléfono: '+dataset.phone, colSpan: 4,}, {}, {}, {}],
+              [{text: 'Correo: '+dataset.email, colSpan: 4,}, {}, {}, {}],
+            ]
           }
-        },
+        },        
       ],
       styles: {
         header: {
           fontSize: 18,
           bold: true,
-          alignment: 'justify'
+          margin: [0, 0, 0, 10]
+        },
+        subheader: {
+          fontSize: 16,
+          bold: true,
+          margin: [0, 10, 0, 5]
+        },
+        tableExample: {
+          margin: [0, 5, 0, 15]
+        },
+        tableHeader: {
+          bold: true,
+          fontSize: 13,
+          color: 'black'
         }
-      }
-    };
-
-    
-      
-      
-    
+      },
+    };    
     pdfMake.createPdf(documentDefinition).download();
 }
+  
   const [selectedOption, setSelectedOption] = useState("");
   const [visibleAdd, setVisibleaAdd] = useState(false);
 
@@ -74,13 +86,6 @@ function FormService() {
     },
   });
 
-  /* Button */
-  
-
-  const handleClick = () => {
-    window.open('https://nationalsoft.openser.com/indexPublic.html#PortalPublic', '_blank');
-    createPDF();
-  };
 
 
   /* Campo Address Deshabilitdo */
@@ -153,6 +158,16 @@ const handleChangeCompu = (event) => {
   }));
 };
 
+  /* Button */
+  
+
+  const handleClick = () => {
+    window.open('https://nationalsoft.openser.com/indexPublic.html#PortalPublic', '_blank');
+    createPDF(formData);
+    sales();   
+  };
+
+
 console.log(checkComp)
 console.log(formData)
 console.log("hola")
@@ -176,7 +191,7 @@ console.log("hola")
                 <Form.Label>Contacto <span class="required"> *</span></Form.Label>
                 <Form.Control 
                   type="text" 
-                  placeholder="Nombre del Negocio"
+                  placeholder="Nombre"
                   id = "contact"                  
                   value={formData.contact}
                   onChange={handleChange} 
@@ -565,4 +580,4 @@ console.log("hola")
     );
   }
   
-  export default FormService;
+export default FormService;
