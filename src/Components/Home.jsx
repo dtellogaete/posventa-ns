@@ -16,10 +16,10 @@ const Home = () => {
         <Container className='home'  style={{ display: 'flex', flex: 1 }}>
             <Row style={{ display: 'flex', justifyContent: 'center' }}>
                 <Col >
-                    <ServiceCard title="Solicita un Servicio" img="img/service.jpg" url="/service"></ServiceCard>
+                    <ServiceCard title="Solicita un Servicio" img="img/service.jpg" url="/servicio"></ServiceCard>
                 </Col>
                 <Col >
-                    <ServiceCard title="Solicita una Capacitación" img="img/capacitacion.jpg"></ServiceCard>  
+                    <ServiceCard title="Solicita una Capacitación" img="img/capacitacion.jpg" url="/capacitacion"></ServiceCard>  
                 </Col>          
             </Row>      
         </Container>

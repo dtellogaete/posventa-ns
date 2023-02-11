@@ -1,4 +1,4 @@
-import  { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useFormik } from 'formik';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -40,15 +40,30 @@ function FormService() {
           table: {
             widths: [100, '*', 200, '*'],
             body: [              
-              [{text: '1. Datos Generales', style: 'tableHeader', colSpan: 4, bold: true, fillColor:'#F5F5F5', alignment: 'center'}, {}, {}, {}],
+              [{text: '1. Datos Generales', style: 'tableHeader', colSpan: 4, bold: true, fillColor:'#9b9b9b', alignment: 'center'}, {}, {}, {}],
               [{text: 'Nombre Comercial: '+dataset.name, colSpan: 4}, {}, {}, {}],              
-              [{text: 'Contacto: '+dataset.contact, colSpan: 4,}, {}, {}, {}],
-              [{text: 'Dirección: '+dataset.address,},  {text: 'Teléfono: '+dataset.phone,}],
+              [{text: 'Contacto: '+dataset.contact, colSpan: 4,}, {}, {}, {}],             
               [{text: 'Teléfono: '+dataset.phone, colSpan: 4,}, {}, {}, {}],
+              [{text: 'Correo: '+dataset.email, colSpan: 4,}, {}, {}, {}],
+              [{text: 'Dirección: '+dataset.address, colSpan: 4,}, {}, {}, {}],
               [{text: 'Correo: '+dataset.email, colSpan: 4,}, {}, {}, {}],
             ]
           }
-        },        
+        }, 
+        {
+          style: 'tableExample',
+          table: {
+            widths: [100, '*', 200, '*'],
+            body: [              
+              [{text: '2. Datos del Servicio', style: 'tableHeader', colSpan: 4, bold: true, fillColor:'#9b9b9b', alignment: 'center'}, {}, {}, {}],
+              [{text: 'Elabora: '+dataset.work, colSpan: 4}, {}, {}, {}],   
+              [{text: 'Tipo de Servicio: '+dataset.service, colSpan: 4}, {}, {}, {}],              
+              [{text: 'Sistema: '+dataset.system, colSpan: 4,}, {}, {}, {}],             
+              [{text: 'Tipo de Servicio: '+dataset.kind, colSpan: 4,}, {}, {}, {}],
+              [{text: 'Factura: '+dataset.folio, colSpan: 4,}, {}, {}, {}],              
+            ]
+          }
+        },               
       ],
       styles: {
         header: {
@@ -199,10 +214,10 @@ console.log("hola")
               </Form.Group>
               <Form.Group className="mb-3" >
                 <Form.Label>Servicio <span class="required"> *</span></Form.Label>
-                <Form.Control as="select" name="service" required onChange={handleChange} id="service">
+                <Form.Control as="select" name="service" required onChange={handleChange} id="service" value={formData.service}>
                   <option value="">Selecciona una opción</option>
-                  <option value={formData.service}>En Línea</option>
-                  <option value={formData.service}>En Sitio</option>
+                  <option>En Línea</option>
+                  <option>En Sitio</option>
                 </Form.Control>
               </Form.Group>
               <Form.Group className="mb-3"   type="text">

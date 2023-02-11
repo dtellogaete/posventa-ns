@@ -3,7 +3,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import Home from './Components/Home';
 
 import {  BrowserRouter,  Route, Routes, Link } from 'react-router-dom';
-import FormService from './Components/Form';
+import FormService from './Components/FormService';
+import FormCapacitacion from './Components/FormCapacitacion';
 
 
 const App = () => {
@@ -12,7 +13,8 @@ const App = () => {
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Home/>} />      
-          <Route path="/service" element={<FormService/>} />      
+          <Route path="/servicio" element={<FormService/>} />     
+          <Route path="/capacitacion" element={<FormCapacitacion/>} />   
         </Routes>      
       </BrowserRouter>    
     </div>   
