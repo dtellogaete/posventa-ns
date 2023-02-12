@@ -23,7 +23,7 @@ function FormCapacitacion() {
 
   const [saless, setSales] = useState([]);
 
-  fetch('http://localhost:8888/api/sales')
+  fetch('http://localhost/api')
   .then(response => response)
   .then(data => {
     // Hacer algo con los datos
