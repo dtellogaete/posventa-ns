@@ -10,9 +10,10 @@ import Footer from './Footer';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import {  FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
+import axios from 'axios';
+import Axios from 'axios'
 
-/* Datos */
-import sales from '../Data/sales'
+
 
 /* Generador de PDF */
 import pdfMake from 'pdfmake/build/pdfmake';
@@ -21,20 +22,7 @@ pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
 function FormCapacitacion() {
 
-  const [saless, setSales] = useState([]);
-
-  fetch('http://localhost/api')
-  .then(response => response)
-  .then(data => {
-    // Hacer algo con los datos
-    console.log(data); // [{id_sales: "1", name: "vendedor", lastname: "1", email: "vendedor@gmail.com"}, ...]
-    console.log("hdshdjash")
-  })
-  .catch(error => {
-    console.error(error);
-    console.log("holssssssssssssa")
-    console.log(error)
-  }); 
+  const [saless, setSales] = useState([]);  
 
   const createPDF = (dataset) => {    
     const documentDefinition = { 
@@ -110,28 +98,7 @@ function FormCapacitacion() {
     },
   });
 
-
-
-  /* Campo Address Deshabilitdo */
-  const [disabled, setDisabled] = useState(true);
-
-  const handleSelectChange = event => {
-    if (event.target.value === "En Sitio") {
-        setDisabled(true);
-    } else {
-        setDisabled(false);
-    }
-};
-
-/*
-const handleChange = event => {
-  console.log(event.target.value);
-  formik.setFieldValue(event.target.name, event.target.value);
-};
-*/
-
 /* Forms */
-
 const [checkComp, setcheckComp] = useState({
   cServer: {processor: '', ram:'', memory: '', os: '', internet:''},
   cStation: {processor: '', ram:'', memory: '', os: ''},
@@ -162,8 +129,6 @@ const [formData, setFormData] = useState({
 
 
 
-
-
 const handleChange = (event) => {
   setFormData({
     ...formData,
@@ -183,130 +148,154 @@ const handleChangeCompu = (event) => {
 };
 
   /* Button */
-  
-
   const handleClick = () => {
     window.open('https://nationalsoft.openser.com/indexPublic.html#PortalPublic', '_blank');
     createPDF(formData);
-    sales();   
+    handleSubmit(); 
   };
 
-
-console.log(checkComp)
-console.log(formData)
-console.log("hola")
-    return (      
-      <div className=" App FormService">          
-       <NavbarNs></NavbarNs>        
-        <Container className='home'  style = {{ width: 'auto'}}>
-          <Row style={{display: "flex"}}>
-            <Form style={{textAlign: 'left'}}>
-              <Form.Group className="mb-3" id="formBasicName" required>
-                <Form.Label>Nombre Comercial<span class="required"> *</span></Form.Label>
-                <Form.Control 
-                  type="text" 
-                  placeholder="Nombre del Negocio"
-                  value={formData.name}
-                  onChange={handleChange}
-                  id = "name" 
-                  required />        
-              </Form.Group>
-              <Form.Group className="mb-3" >
-                <Form.Label>Contacto <span class="required"> *</span></Form.Label>
-                <Form.Control 
-                  type="text" 
-                  placeholder="Nombre"
-                  id = "contact"                  
-                  value={formData.contact}
-                  onChange={handleChange} 
-                  required/>        
-              </Form.Group>
-              <Form.Group className="mb-3" >
-                <Form.Label>Servicio <span class="required"> *</span></Form.Label>
-                <Form.Control as="select" name="service" required onChange={handleChange} id="service" value={formData.service}>
-                  <option value="">Selecciona una opción</option>
-                  <option>En Línea</option>
-                  <option>En Sitio</option>
-                </Form.Control>
-              </Form.Group>
-              <Form.Group className="mb-3"   type="text">
-                <Form.Label>Dirección</Form.Label>
-                <Form.Control 
-                  type="text" 
-                  placeholder="Dirección"
-                  id="address"
-                  value={formData.address} 
-                  required 
-                  onChange ={handleChange}
-                  />        
-              </Form.Group>
-              <Form.Group className="mb-3" >
-                <Form.Label>Teléfono <span class="required"> *</span></Form.Label>
-                <Form.Control 
-                  type="tel" 
-                  placeholder="Teléfono"
-                  id="phone"
-                  value={formData.phone}
-                  onChange ={handleChange}
-                  required/>        
-              </Form.Group>
-              <Form.Group className="mb-3" >
-                <Form.Label>Correo Electrónico <span class="required"> *</span></Form.Label>
-                <Form.Control 
-                  type="email" 
-                  placeholder="Ingresar Email"
-                  id="email" 
-                  value={formData.email}
-                  onChange={handleChange}
-                  required/>                
-              </Form.Group>              
-              <Form.Group className="mb-3" >
-                <Form.Label>Elabora <span class="required"> *</span></Form.Label>
-                <Form.Control 
-                  type="text" 
-                  placeholder="Nombre de Ejecutivo de Ventas"
-                  id="work"
-                  value={formData.work}
-                  onChange={handleChange}
-                  required />        
-              </Form.Group>
-              <Form.Group className="mb-3" >
-                <Form.Label>Sistema <span class="required"> *</span></Form.Label>
-                <Form.Control 
-                  as="select"
-                  id="system"
-                  value={formData.system}
-                  onChange={handleChange}
-                  required>
-                  <option value="">Selecciona una opción</option>
-                  <option>Soft Restaurant</option>
-                  <option>Soft Restaurant Movil</option>
-                  <option>On The Minute</option>
-                  <option>NS Hoteles</option>
-                  <option>E-Delivery</option>
-                  <option>Autofactura / Analytics </option>
-                </Form.Control>
-              </Form.Group>                   
-              <Form.Group className="mb-3">
-                <Form.Label>Folio Factura <span class="required"> *</span></Form.Label>
-                <Form.Control 
-                  type="text" 
-                  placeholder="ST 000123"
-                  id="folio"
-                  value={formData.folio}
-                  onChange={handleChange}
-                  required/>        
-              </Form.Group>            
-              <Button variant="danger" type="submit" onClick={handleClick}>
-                Enviar Formulario
-              </Button>
-            </Form>        
-          </Row>      
-        </Container>
-        <Footer style={{minHeight: '100vh'}}></Footer>         
-      </div>
+  /* Enviar datos a la base de datos */
+  const handleSubmit = () => {    
+    Axios.post('http://localhost:3002/api/service', 
+    {
+      name: formData.name,      
+      contact: formData.contact,
+      service: formData.service,
+      address: formData.address,
+      phone: formData.phone,
+      email: formData.email,
+      work: formData.work,
+      system: formData.system,
+      kind: formData.kind,
+      folio: formData.folio,
+      qEquipment: formData.qEquipment,
+      qLogo: formData.qLogo,
+      qReq: formData.qReq,
+      qCSD: formData.qCSD,
+      qNode: formData.qNode,
+      qNotification: formData.qNotification,
       
-    );
-  }
+    })
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+  };
+
+  return (      
+    <div className=" App FormService">          
+      <NavbarNs></NavbarNs>        
+      <Container className='home'  style = {{ width: 'auto'}}>
+        <Row style={{display: "flex"}}>
+          <Form style={{textAlign: 'left'}}>
+            <Form.Group className="mb-3" id="formBasicName" required>
+              <Form.Label>Nombre Comercial<span class="required"> *</span></Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="Nombre del Negocio"
+                value={formData.name}
+                onChange={handleChange}
+                id = "name" 
+                required />        
+            </Form.Group>
+            <Form.Group className="mb-3" >
+              <Form.Label>Contacto <span class="required"> *</span></Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="Nombre"
+                id = "contact"                  
+                value={formData.contact}
+                onChange={handleChange} 
+                required/>        
+            </Form.Group>
+            <Form.Group className="mb-3" >
+              <Form.Label>Servicio <span class="required"> *</span></Form.Label>
+              <Form.Control as="select" name="service" required onChange={handleChange} id="service" value={formData.service}>
+                <option value="">Selecciona una opción</option>
+                <option>En Línea</option>
+                <option>En Sitio</option>
+              </Form.Control>
+            </Form.Group>
+            <Form.Group className="mb-3"   type="text">
+              <Form.Label>Dirección</Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="Dirección"
+                id="address"
+                value={formData.address} 
+                required 
+                onChange ={handleChange}
+                />        
+            </Form.Group>
+            <Form.Group className="mb-3" >
+              <Form.Label>Teléfono <span class="required"> *</span></Form.Label>
+              <Form.Control 
+                type="tel" 
+                placeholder="Teléfono"
+                id="phone"
+                value={formData.phone}
+                onChange ={handleChange}
+                required/>        
+            </Form.Group>
+            <Form.Group className="mb-3" >
+              <Form.Label>Correo Electrónico <span class="required"> *</span></Form.Label>
+              <Form.Control 
+                type="email" 
+                placeholder="Ingresar Email"
+                id="email" 
+                value={formData.email}
+                onChange={handleChange}
+                required/>                
+            </Form.Group>              
+            <Form.Group className="mb-3" >
+              <Form.Label>Elabora <span class="required"> *</span></Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="Nombre de Ejecutivo de Ventas"
+                id="work"
+                value={formData.work}
+                onChange={handleChange}
+                required />        
+            </Form.Group>
+            <Form.Group className="mb-3" >
+              <Form.Label>Sistema <span class="required"> *</span></Form.Label>
+              <Form.Control 
+                as="select"
+                id="system"
+                value={formData.system}
+                onChange={handleChange}
+                required>
+                <option value="">Selecciona una opción</option>
+                <option>Soft Restaurant</option>
+                <option>Soft Restaurant Movil</option>
+                <option>On The Minute</option>
+                <option>NS Hoteles</option>
+                <option>E-Delivery</option>
+                <option>Autofactura / Analytics </option>
+              </Form.Control>
+            </Form.Group>                   
+            <Form.Group className="mb-3">
+              <Form.Label>Folio Factura <span class="required"> *</span></Form.Label>
+              <Form.Control 
+                type="text" 
+                placeholder="ST 000123"
+                id="folio"
+                value={formData.folio}
+                onChange={handleChange}
+                required/>        
+            </Form.Group>            
+            <Button variant="danger" type="submit" onClick={handleClick}>
+              Enviar Formulario
+            </Button>
+          </Form>        
+        </Row>      
+      </Container>
+      <Footer style={{minHeight: '100vh'}}></Footer>         
+    </div>
+    
+  );
+}
   
 export default FormCapacitacion;

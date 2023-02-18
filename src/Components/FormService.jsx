@@ -6,6 +6,7 @@ import '../App.css';
 import { Container, Row, Col} from 'react-bootstrap';
 import NavbarNs from './Nav';
 import Footer from './Footer';
+import Axios from 'axios'
 
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -14,17 +15,33 @@ import {  FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
 
 
 /* Datos */
-import sales from '../Data/sales'
+import {getSoftware} from '../Data/software';
+import { getMaxVals } from '../Data/maxvals';
+import {getMaxCustomer} from '../Data/maxcustomer';
 
 /* Generador de PDF */
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
+function FormService() { 
+  
+  /* Obtener listado de softwares*/
+  const [softList,setSoftList] = useState([]);
+  const [maxVals, setMaxVals] = useState(0);
+  const [maxCust, setMaxCust] = useState(0);
 
-function FormService() {
+  
+  useEffect(() => {
+    getSoftware().then(data => setSoftList(data));
+    getMaxVals().then(data => setMaxVals(data));
+    getMaxCustomer().then(data => setMaxCust(data));    
+  }, []);
 
-  const hola ="holaaa";
+  console.log("dahsdashdkasjdk")
+
+  console.log(maxCust[0])
+  console.log(maxVals[0])
 
   const createPDF = (dataset) => {
     console.log("hola hola")
@@ -150,11 +167,6 @@ const [formData, setFormData] = useState({
   cStation: checkComp.cStation,
 })
 
-
-
-
-
-
 const handleChange = (event) => {
   setFormData({
     ...formData,
@@ -178,10 +190,79 @@ const handleChangeCompu = (event) => {
 
   const handleClick = () => {
     window.open('https://nationalsoft.openser.com/indexPublic.html#PortalPublic', '_blank');
-    createPDF(formData);
-    sales();   
+    createPDF(formData);     
+    handleSubmitCustomer(); 
+    handleSubmitValidations();
+    handleSubmit(); 
   };
 
+  /* Enviar datos a la base de datos */
+  const handleSubmit = () => {    
+    Axios.post('http://localhost:3002/api/service', 
+    {      
+      service: formData.service,
+      idsoft: formData.system,
+      idcustomer: maxCust[0] + 1,
+      idvals: maxVals[0]+1,     
+      work: formData.work,
+      system: formData.system,
+      kind: formData.kind,
+      folio: formData.folio,
+         
+    })
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+  };
+
+   /* Enviar datos a la base de datos clientes */
+   const handleSubmitCustomer = () => {    
+    Axios.post('http://localhost:3002/api/cliente', 
+    {
+      name: formData.name,      
+      contact: formData.contact,      
+      address: formData.address,
+      phone: formData.phone,
+      email: formData.email,      
+    })
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+  };
+
+  /* Enviar datos a la base de datos validations */
+  const handleSubmitValidations = () => {    
+    Axios.post('http://localhost:3002/api/val', 
+    {
+      qEquipment: parseInt(formData.qEquipment),
+      qLogo: parseInt(formData.qLogo),
+      qReq: parseInt(formData.qReq),
+      qCSD: parseInt(formData.qCSD),
+      qNode: parseInt(formData.qNode),
+      qNotification: parseInt(formData.qNotification),
+      cserver_processor: checkComp.cServer.processor,
+      cserver_ram: checkComp.cServer.ram,
+      cserver_memory: checkComp.cServer.memory,
+      cserver_os: checkComp.cServer.os,
+      cserver_internet: checkComp.cServer.internet,
+      cstation_processor: checkComp.cStation.processor,
+      cstation_ram: checkComp.cStation.ram,
+      cstation_memory: checkComp.cStation.memory,
+      cstation_os: checkComp.cStation.os,        
+    })
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+  };
 
 console.log(checkComp)
 console.log(formData)
@@ -211,15 +292,7 @@ console.log("hola")
                   value={formData.contact}
                   onChange={handleChange} 
                   required/>        
-              </Form.Group>
-              <Form.Group className="mb-3" >
-                <Form.Label>Servicio <span class="required"> *</span></Form.Label>
-                <Form.Control as="select" name="service" required onChange={handleChange} id="service" value={formData.service}>
-                  <option value="">Selecciona una opción</option>
-                  <option>En Línea</option>
-                  <option>En Sitio</option>
-                </Form.Control>
-              </Form.Group>
+              </Form.Group>              
               <Form.Group className="mb-3"   type="text">
                 <Form.Label>Dirección</Form.Label>
                 <Form.Control 
@@ -250,6 +323,14 @@ console.log("hola")
                   value={formData.email}
                   onChange={handleChange}
                   required/>                
+              </Form.Group>
+              <Form.Group className="mb-3" >
+                <Form.Label>Servicio <span class="required"> *</span></Form.Label>
+                <Form.Control as="select" name="service" required onChange={handleChange} id="service" value={formData.service}>
+                  <option value="">Selecciona una opción</option>
+                  <option>En Línea</option>
+                  <option>En Sitio</option>
+                </Form.Control>
               </Form.Group>              
               <Form.Group className="mb-3" >
                 <Form.Label>Elabora <span class="required"> *</span></Form.Label>
@@ -270,12 +351,9 @@ console.log("hola")
                   onChange={handleChange}
                   required>
                   <option value="">Selecciona una opción</option>
-                  <option>Soft Restaurant</option>
-                  <option>Soft Restaurant Movil</option>
-                  <option>On The Minute</option>
-                  <option>NS Hoteles</option>
-                  <option>E-Delivery</option>
-                  <option>Autofactura / Analytics </option>
+                  {softList.map(item =>{
+                      return (<option value={item.idsoft}>{item.name}</option>)
+                  })}                   
                 </Form.Control>
               </Form.Group>              
               <Form.Group className="mb-3" >
@@ -312,8 +390,8 @@ console.log("hola")
                       name="qEquipment"
                       type={type}
                       id="qEquipment"
-                      value="El cliente no adquirió los equipos" 
-                      checked={formData.qEquipment === "El cliente no adquirió los equipos"}
+                      value='0' 
+                      checked={formData.qEquipment === "0"}
                       onChange={handleChange}
                     />
                     <Form.Check
@@ -322,8 +400,8 @@ console.log("hola")
                       name="qEquipment"
                       type={type}
                       id="qEquipment"
-                      value="Solicitarlos en almacén" 
-                      checked={formData.qEquipment  === "Solicitarlos en almacén"}
+                      value='1' 
+                      checked={formData.qEquipment  === "1"}
                       onChange={handleChange}
                     />
                     <Form.Check
@@ -332,8 +410,8 @@ console.log("hola")
                       name="qEquipment"
                       type={type}
                       id="qEquipment"
-                      value="Ya fueron entregados al cliente" 
-                      checked={formData.qEquipment === "Ya fueron entregados al cliente"}
+                      value='2' 
+                      checked={formData.qEquipment === "2"}
                       onChange={handleChange}
                     />
                   </div>
@@ -350,8 +428,8 @@ console.log("hola")
                       type={type}
                       id="qLogo"
                       name="qLogo"
-                      value= "Si" 
-                      checked={formData.qLogo === "Si"}        
+                      value= "1" 
+                      checked={formData.qLogo === "1"}        
                       onChange={handleChange}                      
                     />
                     <Form.Check
@@ -360,8 +438,8 @@ console.log("hola")
                       type={type}
                       id="qLogo"
                       name="qLogo"
-                      value= "No" 
-                      checked={formData.qLogo === "No"}    
+                      value= "0" 
+                      checked={formData.qLogo === "0"}    
                       onChange={handleChange} 
                     />                                   
                   </div>
@@ -378,8 +456,8 @@ console.log("hola")
                       type={type}
                       id="qReq"
                       name="qReq"
-                      value= "Si" 
-                      checked={formData.qReq === "Si"}    
+                      value= "1" 
+                      checked={formData.qReq === "1"}    
                       onChange={handleChange} 
                     />
                     <Form.Check
@@ -388,8 +466,8 @@ console.log("hola")
                       type={type}
                       id="qReq"
                       name="qReq"
-                      value= "No" 
-                      checked={formData.qReq === "No"}    
+                      value= "0" 
+                      checked={formData.qReq === "0"}    
                       onChange={handleChange} 
                     />                                   
                   </div>
@@ -406,8 +484,8 @@ console.log("hola")
                       type={type}
                       id="qCSD"
                       name="qCSD"
-                      value= "Si"     
-                      checked={formData.qCSD === "Si"}    
+                      value= "1"     
+                      checked={formData.qCSD === "1"}    
                       onChange={handleChange} 
                     />
                     <Form.Check
@@ -416,8 +494,8 @@ console.log("hola")
                       type={type}
                       id="qCSD"
                       name="qCSD"
-                      value= "No"     
-                      checked={formData.qCSD === "No"}    
+                      value= "0"     
+                      checked={formData.qCSD === "0"}    
                       onChange={handleChange} 
                     />                                   
                   </div>
@@ -434,8 +512,8 @@ console.log("hola")
                       type={type}
                       id="qNode"
                       name="qNode"
-                      value= "Si"
-                      checked={formData.qNode === "Si"}         
+                      value= "1"
+                      checked={formData.qNode === "1"}         
                       onChange={handleChange}
                     />
                     <Form.Check
@@ -444,8 +522,8 @@ console.log("hola")
                       type={type}
                       id="qNode"
                       name="qNode"
-                      value= "No"
-                      checked={formData.qNode === "No"}     
+                      value= "0"
+                      checked={formData.qNode === "0"}     
                       onChange={handleChange}
                     />                                   
                   </div>
@@ -462,8 +540,8 @@ console.log("hola")
                       type={type}
                       id="qNotification"
                       name="qNotification"
-                      value= "Si"
-                      checked={formData.qNotification === "Si"}         
+                      value= "1"
+                      checked={formData.qNotification === "1"}         
                       onChange={handleChange}
                     />
                     <Form.Check
@@ -472,8 +550,8 @@ console.log("hola")
                       type={type}
                       id="qNotification"
                       name="qNotification"
-                      value= "No"
-                      checked={formData.qNotification === "No"}     
+                      value= "0"
+                      checked={formData.qNotification === "0"}     
                       onChange={handleChange}
                     />                                   
                   </div>
