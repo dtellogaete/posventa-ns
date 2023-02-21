@@ -1,34 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { useFormik } from 'formik';
 
+/* CSS */
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '../App.css';
-import { Container, Row, Col} from 'react-bootstrap';
+
+/*Components*/
 import NavbarNs from './Nav';
 import Footer from './Footer';
-
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import {  FormGroup, ControlLabel, FormControl } from 'react-bootstrap';
-import axios from 'axios';
 import Axios from 'axios'
 
+/* Bootstrap */
+import { Container, Row, Button, Form} from 'react-bootstrap';
 
+/* Datos */
+import {getSoftware} from '../Data/software';
+import {getMaxCustomer} from '../Data/maxcustomer';
 
 /* Generador de PDF */
 import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-function FormCapacitacion() {
+function FormCapacitacion() { 
+  
+  /* Obtener listado de softwares*/
+  const [softList,setSoftList] = useState([]);  
+  const [maxCust, setMaxCust] = useState(0);
 
-  const [saless, setSales] = useState([]);  
+  
+  useEffect(() => {
+    getSoftware().then(data => setSoftList(data));    
+    getMaxCustomer().then(data => setMaxCust(data));    
+  }, []);
 
-  const createPDF = (dataset) => {    
+  const createPDF = (dataset) => {
+    console.log("hola hola")
     const documentDefinition = { 
       content: [
         {
-          text: 'Solicitud de Capacitación N°10\n',
+          text: 'Solicitud de Servicio N°10\n',
           style: 'header',
           alignment: 'center'
         },
@@ -85,24 +95,8 @@ function FormCapacitacion() {
     };    
     pdfMake.createPdf(documentDefinition).download();
 }
-  
-  const [selectedOption, setSelectedOption] = useState("");
-  const [visibleAdd, setVisibleaAdd] = useState(false);
-
-  const formik = useFormik({
-    initialValues: {
-      example: ''
-    },
-    onSubmit: values => {
-      console.log(values);
-    },
-  });
-
 /* Forms */
-const [checkComp, setcheckComp] = useState({
-  cServer: {processor: '', ram:'', memory: '', os: '', internet:''},
-  cStation: {processor: '', ram:'', memory: '', os: ''},
-});
+
 
 const [formData, setFormData] = useState({
   id: '', 
@@ -121,13 +115,8 @@ const [formData, setFormData] = useState({
   qReq: '',
   qCSD: '',
   qNode: '',
-  qNotification: '',
-  cServer: checkComp.cServer,
-  cStation: checkComp.cStation,
+  qNotification: '',  
 })
-
-
-
 
 const handleChange = (event) => {
   setFormData({
@@ -135,46 +124,26 @@ const handleChange = (event) => {
     [event.target.id]: event.target.value,
   });
 }
-
-const handleChangeCompu = (event) => {
-  const { id, name, value } = event.target;
-  setcheckComp((prevState) => ({
-    ...prevState,
-    [id]: {
-      ...prevState[id],
-      [name]: value,
-    },
-  }));
-};
-
   /* Button */
   const handleClick = () => {
     window.open('https://nationalsoft.openser.com/indexPublic.html#PortalPublic', '_blank');
-    createPDF(formData);
+    createPDF(formData);     
+    handleSubmitCustomer();  
     handleSubmit(); 
   };
 
   /* Enviar datos a la base de datos */
   const handleSubmit = () => {    
-    Axios.post('http://localhost:3002/api/service', 
-    {
-      name: formData.name,      
-      contact: formData.contact,
+    Axios.post('http://localhost:3002/api/servicecap', 
+    {      
       service: formData.service,
-      address: formData.address,
-      phone: formData.phone,
-      email: formData.email,
+      idsoft: formData.system,
+      idcustomer: maxCust[0] + 1,         
       work: formData.work,
       system: formData.system,
-      kind: formData.kind,
+      kind: "Capacitación",
       folio: formData.folio,
-      qEquipment: formData.qEquipment,
-      qLogo: formData.qLogo,
-      qReq: formData.qReq,
-      qCSD: formData.qCSD,
-      qNode: formData.qNode,
-      qNotification: formData.qNotification,
-      
+         
     })
     .then(response => {
       console.log(response.data);
@@ -184,14 +153,32 @@ const handleChangeCompu = (event) => {
     });
   };
 
+   /* Enviar datos a la base de datos clientes */
+   const handleSubmitCustomer = () => {    
+    Axios.post('http://localhost:3002/api/cliente', 
+    {
+      name: formData.name,      
+      contact: formData.contact,      
+      address: formData.address,
+      phone: formData.phone,
+      email: formData.email,      
+    })
+    .then(response => {
+      console.log(response.data);
+    })
+    .catch(error => {
+      console.log(error);
+    });
+  }; 
+
   return (      
     <div className=" App FormService">          
-      <NavbarNs></NavbarNs>        
+    <NavbarNs></NavbarNs>        
       <Container className='home'  style = {{ width: 'auto'}}>
         <Row style={{display: "flex"}}>
           <Form style={{textAlign: 'left'}}>
             <Form.Group className="mb-3" id="formBasicName" required>
-              <Form.Label>Nombre Comercial<span class="required"> *</span></Form.Label>
+              <Form.Label>Nombre Comercial<span className="required"> *</span></Form.Label>
               <Form.Control 
                 type="text" 
                 placeholder="Nombre del Negocio"
@@ -209,15 +196,7 @@ const handleChangeCompu = (event) => {
                 value={formData.contact}
                 onChange={handleChange} 
                 required/>        
-            </Form.Group>
-            <Form.Group className="mb-3" >
-              <Form.Label>Servicio <span class="required"> *</span></Form.Label>
-              <Form.Control as="select" name="service" required onChange={handleChange} id="service" value={formData.service}>
-                <option value="">Selecciona una opción</option>
-                <option>En Línea</option>
-                <option>En Sitio</option>
-              </Form.Control>
-            </Form.Group>
+            </Form.Group>              
             <Form.Group className="mb-3"   type="text">
               <Form.Label>Dirección</Form.Label>
               <Form.Control 
@@ -248,6 +227,14 @@ const handleChangeCompu = (event) => {
                 value={formData.email}
                 onChange={handleChange}
                 required/>                
+            </Form.Group>
+            <Form.Group className="mb-3" >
+              <Form.Label>Servicio <span class="required"> *</span></Form.Label>
+              <Form.Control as="select" name="service" required onChange={handleChange} id="service" value={formData.service}>
+                <option value="">Selecciona una opción</option>
+                <option>En Línea</option>
+                <option>En Sitio</option>
+              </Form.Control>
             </Form.Group>              
             <Form.Group className="mb-3" >
               <Form.Label>Elabora <span class="required"> *</span></Form.Label>
@@ -268,14 +255,11 @@ const handleChangeCompu = (event) => {
                 onChange={handleChange}
                 required>
                 <option value="">Selecciona una opción</option>
-                <option>Soft Restaurant</option>
-                <option>Soft Restaurant Movil</option>
-                <option>On The Minute</option>
-                <option>NS Hoteles</option>
-                <option>E-Delivery</option>
-                <option>Autofactura / Analytics </option>
+                {softList.map(item =>{
+                    return (<option value={item.idsoft}>{item.name}</option>)
+                })}                   
               </Form.Control>
-            </Form.Group>                   
+            </Form.Group>              
             <Form.Group className="mb-3">
               <Form.Label>Folio Factura <span class="required"> *</span></Form.Label>
               <Form.Control 
@@ -285,7 +269,7 @@ const handleChangeCompu = (event) => {
                 value={formData.folio}
                 onChange={handleChange}
                 required/>        
-            </Form.Group>            
+            </Form.Group>                 
             <Button variant="danger" type="submit" onClick={handleClick}>
               Enviar Formulario
             </Button>

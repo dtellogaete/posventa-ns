@@ -4,8 +4,6 @@ export const getMaxVals = async () => {
     try {
       const resultado = await Axios.get('http://localhost:3002/api/maxvals');
       const datos = resultado.data;
-      console.log("dato maximo")
-
       const array = datos.map((item) => item.datamax)          
   
       return array;
