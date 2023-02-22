@@ -1,3 +1,5 @@
+import jsPDF from 'jspdf';
+
 import React, { useState, useEffect } from 'react';
 
 /* CSS */
@@ -21,6 +23,11 @@ import pdfMake from 'pdfmake/build/pdfmake';
 import pdfFonts from 'pdfmake/build/vfs_fonts';
 pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
+
+
+
+
+
 function FormCapacitacion() { 
   
   /* Obtener listado de softwares*/
@@ -32,6 +39,28 @@ function FormCapacitacion() {
     getSoftware().then(data => setSoftList(data));    
     getMaxCustomer().then(data => setMaxCust(data));    
   }, []);
+
+  const createPDF = () =>{
+    
+    var doc = new jsPDF();
+
+    // Agrega texto al documento
+    doc.setFontSize(10);
+    
+  
+    // Agrega una imagen al documento
+    doc.addImage("img/logo.jpg", "jpg", 100, 10, 90, 30);
+
+    // Texto Inicial
+    doc.text("Aracelly Ramirez",20, 50);
+    doc.text("Ejecutivo Comercial",20, 55);
+    doc.text("Ha solicitado un servicio para el sistema: SOFT RESTAURANT®",20, 60);
+  
+    // Descarga el documento PDF
+    doc.save("ejemplo.pdf");
+  }
+
+  /*
 
   const createPDF = (dataset) => {
     console.log("hola hola")
@@ -95,6 +124,8 @@ function FormCapacitacion() {
     };    
     pdfMake.createPdf(documentDefinition).download();
 }
+
+*/
 /* Forms */
 
 
@@ -127,7 +158,7 @@ const handleChange = (event) => {
   /* Button */
   const handleClick = () => {
     window.open('https://nationalsoft.openser.com/indexPublic.html#PortalPublic', '_blank');
-    createPDF(formData);     
+    createPDF();     
     handleSubmitCustomer();  
     handleSubmit(); 
   };
