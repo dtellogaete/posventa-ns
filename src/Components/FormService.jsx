@@ -10,17 +10,14 @@ import Footer from './Footer';
 import Axios from 'axios'
 
 /* Bootstrap */
-import { Container, Row, Button, Form} from 'react-bootstrap';
+import { Container, Row, Button, Form, Modal, Toast} from 'react-bootstrap';
+
 
 /* Datos */
 import {getSoftware} from '../Data/software';
 import { getMaxVals } from '../Data/maxvals';
 import {getMaxCustomer} from '../Data/maxcustomer';
-
-/* Generador de PDF */
-import pdfMake from 'pdfmake/build/pdfmake';
-import pdfFonts from 'pdfmake/build/vfs_fonts';
-pdfMake.vfs = pdfFonts.pdfMake.vfs;
+import {createPDFServ} from '../Pdf/service';
 
 function FormService() { 
   
@@ -36,73 +33,15 @@ function FormService() {
     getMaxCustomer().then(data => setMaxCust(data));    
   }, []);
 
-  const createPDF = (dataset) => {
-    console.log("hola hola")
-    const documentDefinition = { 
-      content: [
-        {
-          text: 'Solicitud de Servicio N°10\n',
-          style: 'header',
-          alignment: 'center'
-        },
-        {
-          style: 'tableExample',
-          table: {
-            widths: [100, '*', 200, '*'],
-            body: [              
-              [{text: '1. Datos Generales', style: 'tableHeader', colSpan: 4, bold: true, fillColor:'#9b9b9b', alignment: 'center'}, {}, {}, {}],
-              [{text: 'Nombre Comercial: '+dataset.name, colSpan: 4}, {}, {}, {}],              
-              [{text: 'Contacto: '+dataset.contact, colSpan: 4,}, {}, {}, {}],             
-              [{text: 'Teléfono: '+dataset.phone, colSpan: 4,}, {}, {}, {}],
-              [{text: 'Correo: '+dataset.email, colSpan: 4,}, {}, {}, {}],
-              [{text: 'Dirección: '+dataset.address, colSpan: 4,}, {}, {}, {}],
-              [{text: 'Correo: '+dataset.email, colSpan: 4,}, {}, {}, {}],
-            ]
-          }
-        }, 
-        {
-          style: 'tableExample',
-          table: {
-            widths: [100, '*', 200, '*'],
-            body: [              
-              [{text: '2. Datos del Servicio', style: 'tableHeader', colSpan: 4, bold: true, fillColor:'#9b9b9b', alignment: 'center'}, {}, {}, {}],
-              [{text: 'Elabora: '+dataset.work, colSpan: 4}, {}, {}, {}],   
-              [{text: 'Tipo de Servicio: '+dataset.service, colSpan: 4}, {}, {}, {}],              
-              [{text: 'Sistema: '+dataset.system, colSpan: 4,}, {}, {}, {}],             
-              [{text: 'Tipo de Servicio: '+dataset.kind, colSpan: 4,}, {}, {}, {}],
-              [{text: 'Factura: '+dataset.folio, colSpan: 4,}, {}, {}, {}],              
-            ]
-          }
-        },               
-      ],
-      styles: {
-        header: {
-          fontSize: 18,
-          bold: true,
-          margin: [0, 0, 0, 10]
-        },
-        subheader: {
-          fontSize: 16,
-          bold: true,
-          margin: [0, 10, 0, 5]
-        },
-        tableExample: {
-          margin: [0, 5, 0, 15]
-        },
-        tableHeader: {
-          bold: true,
-          fontSize: 13,
-          color: 'black'
-        }
-      },
-    };    
-    pdfMake.createPdf(documentDefinition).download();
-}
+/*Toast*/
+const [showA, setShowA] = useState(true);
+const toggleShowA = () => setShowA(!showA);
+  
 /* Forms */
 
 const [checkComp, setcheckComp] = useState({
-  cServer: {processor: '', ram:'', memory: '', os: '', internet:''},
-  cStation: {processor: '', ram:'', memory: '', os: ''},
+  cServer: {processor: false, ram:false, memory: false, os: false, internet:false},
+  cStation: {processor: false, ram:false, memory: false, os: false},
 });
 
 const [formData, setFormData] = useState({
@@ -135,23 +74,43 @@ const handleChange = (event) => {
 }
 
 const handleChangeCompu = (event) => {
-  const { id, name, value } = event.target;
+  const { id, name, checked } = event.target;
   setcheckComp((prevState) => ({
     ...prevState,
     [id]: {
       ...prevState[id],
-      [name]: value,
+      [name]: checked,
     },
   }));
 };
 
   /* Button */
-  const handleClick = () => {
-    window.open('https://nationalsoft.openser.com/indexPublic.html#PortalPublic', '_blank');
-    createPDF(formData);     
-    handleSubmitCustomer(); 
-    handleSubmitValidations();
-    handleSubmit(); 
+  const handleClick = () => {   
+    if (!formData.name || 
+      !formData.contact || 
+      !formData.phone || 
+      !formData.email || 
+      !formData.service || 
+      !formData.system || 
+      !formData.work || 
+      !formData.folio ||
+      !formData.qCSD ||
+      !formData.qEquipment ||
+      !formData.qLogo ||
+      !formData.qNode ||
+      !formData.qNotification ||
+      !formData.qReq) {
+      alert('Por favor, complete todos los campos obligatorios');
+      return;
+    }
+    createPDFServ(formData, checkCompVal);
+    alert("Generando PDF...");
+    window.open('https://nationalsoft.openser.com/indexPublic.html#PortalPublic', '_blank');    
+    handleSubmitCustomer();
+    handleSubmitValidations();  
+    handleSubmit();
+     
+    window.location.href = '/' 
   };
 
   /* Enviar datos a la base de datos */
@@ -165,8 +124,7 @@ const handleChangeCompu = (event) => {
       work: formData.work,
       system: formData.system,
       kind: formData.kind,
-      folio: formData.folio,
-         
+      folio: formData.folio.toUpperCase(),         
     })
     .then(response => {
       console.log(response.data);
@@ -194,6 +152,20 @@ const handleChangeCompu = (event) => {
     });
   };
 
+  var checkCompVal = {cServer: {        
+    processor: checkComp.cServer.processor === true ? "Procesador Intel/amd i/ryzen 3+" : "",
+    ram: checkComp.cServer.ram === true ? "Memoria Ram 4GB +" : "",
+    memory: checkComp.cServer.memory === true ? "HDD 64GB+" : "",
+    os: checkComp.cServer.os === true ? "Windows 8+ Home/PRO" : "",
+    internet:checkComp.cServer.internet === true ? "Internet Explorer 9+" : "",
+  },
+  cStation: {        
+      processor: checkComp.cStation.processor === true ? "Procesador Intel/amd i/ryzen 3+" : "",
+      ram: checkComp.cStation.ram === true ? "Memoria Ram 4GB +" : "",
+      memory: checkComp.cStation.memory === true ? "HDD 64GB+" : "",
+      os: checkComp.cStation.os === true ? "Windows 8+ Home/PRO" : "",  
+  }}
+
   /* Enviar datos a la base de datos validations */
   const handleSubmitValidations = () => {    
     Axios.post('http://localhost:3002/api/val', 
@@ -204,15 +176,15 @@ const handleChangeCompu = (event) => {
       qCSD: parseInt(formData.qCSD),
       qNode: parseInt(formData.qNode),
       qNotification: parseInt(formData.qNotification),
-      cserver_processor: checkComp.cServer.processor,
-      cserver_ram: checkComp.cServer.ram,
-      cserver_memory: checkComp.cServer.memory,
-      cserver_os: checkComp.cServer.os,
-      cserver_internet: checkComp.cServer.internet,
-      cstation_processor: checkComp.cStation.processor,
-      cstation_ram: checkComp.cStation.ram,
-      cstation_memory: checkComp.cStation.memory,
-      cstation_os: checkComp.cStation.os,        
+      cserver_processor: checkComp.cServer.processor === true ? "Procesador Intel/amd i/ryzen 3+" : "",
+      cserver_ram: checkComp.cServer.ram === true ? "Memoria Ram 4GB +" : "",
+      cserver_memory: checkComp.cServer.memory === true ? "HDD 64GB+" : "",
+      cserver_os: checkComp.cServer.os === true ? "Windows 8+ Home/PRO" : "",
+      cserver_internet: checkComp.cServer.internet === true ? "Internet Explorer 9+" : "",
+      cstation_processor: checkComp.cStation.processor === true ? "Procesador Intel/amd i/ryzen 3+" : "",
+      cstation_ram: checkComp.cStation.ram === true ? "Memoria Ram 4GB +" : "",
+      cstation_memory: checkComp.cStation.memory === true ? "HDD 64GB+" : "",
+      cstation_os: checkComp.cStation.os === true ? "Windows 8+ Home/PRO" : "",      
     })
     .then(response => {
       console.log(response.data);
@@ -222,32 +194,60 @@ const handleChangeCompu = (event) => {
     });
   };
 
+  console.log(formData)
+  console.log(checkComp)
+
+  const [show, setShow] = useState(true);
+
+  const handleClose = () => setShow(false);
+ 
+
   return (      
     <div className=" App FormService">          
     <NavbarNs></NavbarNs>        
       <Container className='home'  style = {{ width: 'auto'}}>
-        <Row style={{display: "flex"}}>
+        <Row style={{display: "flex"}}>     
           <Form style={{textAlign: 'left'}}>
-            <Form.Group className="mb-3" id="formBasicName" required>
-              <Form.Label>Nombre Comercial<span class="required"> *</span></Form.Label>
-              <Form.Control 
-                type="text" 
-                placeholder="Nombre del Negocio"
-                value={formData.name}
-                onChange={handleChange}
-                id = "name" 
-                required />        
-            </Form.Group>
-            <Form.Group className="mb-3" >
-              <Form.Label>Contacto <span class="required"> *</span></Form.Label>
-              <Form.Control 
-                type="text" 
-                placeholder="Nombre"
-                id = "contact"                  
-                value={formData.contact}
-                onChange={handleChange} 
-                required/>        
-            </Form.Group>              
+          <Form.Group className="mb-3" id="formBasicName" required>
+              <Toast show={showA} onClose={toggleShowA} style={{ width: 'auto' }} className="toastNote">
+                <Toast.Header>
+                  <strong className="me-auto"> &#128308; Nota Informativa</strong>
+                </Toast.Header>
+                <Toast.Body>
+                  El servicio sera realizado siempre y cuando el equipo cuente con algunos de los siguientes sistemas operativos:
+                  <ul>
+                    <li>Windows 8.1 Pro</li>
+                    <li>Windows 10 Enterprise</li>
+                    <li>Windows 10 Pro</li>
+                    <li>Windows 10 LSTC</li>
+                    <li>Windows 11 Enterprise</li>
+                    <li>Windows 11Pro</li>
+                    <li>Windows 11 LTSC</li>
+                    <li>Windows server 2022</li>
+                  </ul>          
+                </Toast.Body>
+              </Toast>
+          </Form.Group>           
+          <Form.Group className="mb-3" id="formBasicName" required>
+            <Form.Label>Nombre Comercial<span className="required"> *</span></Form.Label>
+            <Form.Control 
+              type="text" 
+              placeholder="Nombre del Negocio"
+              value={formData.name}
+              onChange={handleChange}
+              id = "name" 
+              required />        
+          </Form.Group>
+          <Form.Group className="mb-3" >
+            <Form.Label>Contacto <span className="required"> *</span></Form.Label>
+            <Form.Control 
+              type="text" 
+              placeholder="Nombre"
+              id = "contact"                  
+              value={formData.contact}
+              onChange={handleChange} 
+              required/>        
+          </Form.Group>              
             <Form.Group className="mb-3"   type="text">
               <Form.Label>Dirección</Form.Label>
               <Form.Control 
@@ -260,9 +260,9 @@ const handleChangeCompu = (event) => {
                 />        
             </Form.Group>
             <Form.Group className="mb-3" >
-              <Form.Label>Teléfono <span class="required"> *</span></Form.Label>
+              <Form.Label>Teléfono <span className="required"> *</span></Form.Label>
               <Form.Control 
-                type="tel" 
+                type="number"
                 placeholder="Teléfono"
                 id="phone"
                 value={formData.phone}
@@ -270,7 +270,7 @@ const handleChangeCompu = (event) => {
                 required/>        
             </Form.Group>
             <Form.Group className="mb-3" >
-              <Form.Label>Correo Electrónico <span class="required"> *</span></Form.Label>
+              <Form.Label>Correo Electrónico <span className="required"> *</span></Form.Label>
               <Form.Control 
                 type="email" 
                 placeholder="Ingresar Email"
@@ -280,7 +280,7 @@ const handleChangeCompu = (event) => {
                 required/>                
             </Form.Group>
             <Form.Group className="mb-3" >
-              <Form.Label>Servicio <span class="required"> *</span></Form.Label>
+              <Form.Label>Servicio <span className="required"> *</span></Form.Label>
               <Form.Control as="select" name="service" required onChange={handleChange} id="service" value={formData.service}>
                 <option value="">Selecciona una opción</option>
                 <option>En Línea</option>
@@ -288,7 +288,7 @@ const handleChangeCompu = (event) => {
               </Form.Control>
             </Form.Group>              
             <Form.Group className="mb-3" >
-              <Form.Label>Elabora <span class="required"> *</span></Form.Label>
+              <Form.Label>Elabora <span className="required"> *</span></Form.Label>
               <Form.Control 
                 type="text" 
                 placeholder="Nombre de Ejecutivo de Ventas"
@@ -298,7 +298,7 @@ const handleChangeCompu = (event) => {
                 required />        
             </Form.Group>
             <Form.Group className="mb-3" >
-              <Form.Label>Sistema <span class="required"> *</span></Form.Label>
+              <Form.Label>Sistema <span className="required"> *</span></Form.Label>
               <Form.Control 
                 as="select"
                 id="system"
@@ -312,7 +312,7 @@ const handleChangeCompu = (event) => {
               </Form.Control>
             </Form.Group>              
             <Form.Group className="mb-3" >
-              <Form.Label>Tipo de Servicio <span class="required"> *</span></Form.Label>
+              <Form.Label>Tipo de Servicio <span className="required"> *</span></Form.Label>
               <Form.Control as="select"
                 id="kind"
                 value={formData.kind}
@@ -325,7 +325,7 @@ const handleChangeCompu = (event) => {
               </Form.Control>
             </Form.Group>
             <Form.Group className="mb-3">
-              <Form.Label>Folio Factura <span class="required"> *</span></Form.Label>
+              <Form.Label>Folio Factura <span className="required"> *</span></Form.Label>
               <Form.Control 
                 type="text" 
                 placeholder="ST 000123"
@@ -373,7 +373,7 @@ const handleChangeCompu = (event) => {
               ))}                
             </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicHardware">
-              <Form.Label>¿El cliente cuenta con su logo en formato editable PNG/JPEG?<span class="required"> *</span></Form.Label>
+              <Form.Label>¿El cliente cuenta con su logo en formato editable PNG/JPEG?<span className="required"> *</span></Form.Label>
               {['radio'].map((type) => (
                 <div key={`inline-${type}`} className="mb-3">
                   <Form.Check
@@ -401,7 +401,7 @@ const handleChangeCompu = (event) => {
               ))}
             </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicInformedCustomer">
-              <Form.Label>¿Se le informo al cliente los requisitos para realizar el servicio?<span class="required"> *</span></Form.Label>
+              <Form.Label>¿El cliente cuenta con energía eléctrica?<span className="required"> *</span></Form.Label>
               {['radio'].map((type) => (
                 <div key={`inline-${type}`} className="mb-3">
                   <Form.Check
@@ -429,7 +429,7 @@ const handleChangeCompu = (event) => {
               ))}
             </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicCSD">
-              <Form.Label>¿El cliente cuenta con sus archivos de facturacion CSD? <span class="required"> *</span></Form.Label>
+              <Form.Label>¿El cliente cuenta con sus archivos de facturacion CSD? <span className="required"> *</span></Form.Label>
               {['radio'].map((type) => (
                 <div key={`inline-${type}`} className="mb-3">
                   <Form.Check
@@ -457,7 +457,7 @@ const handleChangeCompu = (event) => {
               ))}
             </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicNodes">
-              <Form.Label>¿El cliente cuenta con nodos de red funcionales? <span class="required"> *</span> </Form.Label>
+              <Form.Label>¿El cliente cuenta con nodos de red funcionales? <span className="required"> *</span> </Form.Label>
               {['radio'].map((type) => (
                 <div key={`inline-${type}`} className="mb-3">
                   <Form.Check
@@ -485,7 +485,7 @@ const handleChangeCompu = (event) => {
               ))}
             </Form.Group>
             <Form.Group className="mb-3" controlId="formBasicNodes">
-              <Form.Label>Se notificarón por correo los requisitos para realizar el servicio <span class="required"> *</span></Form.Label>
+              <Form.Label>Se notificó por correo los requisitos para realizar el servicio <span className="required"> *</span></Form.Label>
               {['radio'].map((type) => (
                 <div key={`inline-${type}`} className="mb-3">
                   <Form.Check
@@ -522,8 +522,8 @@ const handleChangeCompu = (event) => {
                     type={type}
                     id="cServer"
                     name="processor"
-                    value= "Procesador Intel/amd i/ryzen 3+" 
-                    checked={checkComp.cServer.processor === "Procesador Intel/amd i/ryzen 3+" }    
+                    value= "Procesador Intel/amd i/ryzen 3+"                     
+                    checked={checkComp.cServer.processor}    
                     onChange={handleChangeCompu}
                   />
                   <Form.Check
@@ -533,7 +533,7 @@ const handleChangeCompu = (event) => {
                     id="cServer"
                     name="ram"
                     value= "Memoria Ram 4GB +" 
-                    checked={checkComp.cServer.ram === "Memoria Ram 4GB +"  }     
+                    checked={checkComp.cServer.ram}     
                     onChange={handleChangeCompu}
                   />
                   <Form.Check
@@ -543,7 +543,7 @@ const handleChangeCompu = (event) => {
                     id="cServer"
                     name="memory"
                     value= "HDD 64GB+" 
-                    checked={checkComp.cServer.memory === "HDD 64GB+"  }     
+                    checked={checkComp.cServer.memory}     
                     onChange={handleChangeCompu}
                   />
                   <Form.Check
@@ -551,9 +551,9 @@ const handleChangeCompu = (event) => {
                     label="Windows 8+ Home/PRO"                     
                     type={type}
                     id="cServer"
-                    name="so"
+                    name="os"
                     value= "Windows 8+ Home/PRO" 
-                    checked={checkComp.cServer.so ==="Windows 8+ Home/PRO"}     
+                    checked={checkComp.cServer.os}     
                     onChange={handleChangeCompu}
                   />
                   <Form.Check
@@ -563,7 +563,7 @@ const handleChangeCompu = (event) => {
                     id="cServer"
                     name="internet"
                     value= "Internet Explorer 9+" 
-                    checked={checkComp.cServer.internet ==="Internet Explorer 9+"} 
+                    checked={checkComp.cServer.internet} 
                     onChange={handleChangeCompu}
                   />                                                                
                 </div>
@@ -580,7 +580,7 @@ const handleChangeCompu = (event) => {
                     id="cStation"
                     name="processor"
                     value= "Procesador Intel/amd i/ryzen 3+" 
-                    checked={checkComp.cStation.processor === "Procesador Intel/amd i/ryzen 3+" }    
+                    checked={checkComp.cStation.processor}    
                     onChange={handleChangeCompu}
                   />
                   <Form.Check
@@ -590,7 +590,7 @@ const handleChangeCompu = (event) => {
                     id="cStation"
                     name="ram"
                     value= "Memoria Ram 4GB +" 
-                    checked={checkComp.cStation.ram === "Memoria Ram 4GB +"  }     
+                    checked={checkComp.cStation.ram}     
                     onChange={handleChangeCompu}
                   />
                   <Form.Check
@@ -600,7 +600,7 @@ const handleChangeCompu = (event) => {
                     id="cStation"
                     name="memory"
                     value= "HDD 64GB+" 
-                    checked={checkComp.cStation.memory === "HDD 64GB+"  }     
+                    checked={checkComp.cStation.memory}     
                     onChange={handleChangeCompu}
                   />
                   <Form.Check
@@ -608,9 +608,9 @@ const handleChangeCompu = (event) => {
                     label="Windows 8+ Home/PRO"                     
                     type={type}
                     id="cStation"
-                    name="so"
+                    name="os"
                     value= "Windows 8+ Home/PRO" 
-                    checked={checkComp.cStation.so ==="Windows 8+ Home/PRO"}     
+                    checked={checkComp.cStation.os}     
                     onChange={handleChangeCompu}
                   />                                                                            
                 </div>

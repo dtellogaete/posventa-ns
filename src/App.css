@@ -40,3 +40,7 @@
 .required {
   color: red !important;
 }
+
+.toastnote {
+  width: auto !important;
+}

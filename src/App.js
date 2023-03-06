@@ -2,10 +2,10 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 import Home from './Components/Home';
 
-import {  BrowserRouter,  Route, Routes, Link } from 'react-router-dom';
+import {  BrowserRouter,  Route, Routes} from 'react-router-dom';
 import FormService from './Components/FormService';
 import FormCapacitacion from './Components/FormCapacitacion';
-import Test from './Components/Tests';
+import Admin from './Components/Admin';
 
 
 const App = () => {
@@ -16,7 +16,7 @@ const App = () => {
           <Route path="/" element={<Home/>} />      
           <Route path="/servicio" element={<FormService/>} />     
           <Route path="/capacitacion" element={<FormCapacitacion/>} />   
-          <Route path="/test" element={<Test/>} />   
+          <Route path="/admin" element={<Admin/>} />   
         </Routes>      
       </BrowserRouter>    
     </div>   
