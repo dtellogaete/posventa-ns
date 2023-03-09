@@ -1,11 +1,11 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import Home from './Components/Home';
-
 import {  BrowserRouter,  Route, Routes} from 'react-router-dom';
-import FormService from './Components/FormService';
-import FormCapacitacion from './Components/FormCapacitacion';
-import Admin from './Components/Admin';
+
+import FormService from './views/FormService';
+import FormCapacitacion from './views/FormCapacitacion';
+import Admin from './views/Admin';
+import Home from './views/Home';
 
 
 const App = () => {

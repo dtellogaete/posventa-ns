@@ -1,8 +1,8 @@
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { Container, Row, Col} from 'react-bootstrap';
-import NavbarNs from './Nav';
-import ServiceCard from './Services';
-import Footer from './Footer';
+import NavbarNs from '../components/Nav';
+import ServiceCard from '../components/Services';
+import Footer from '../components/Footer';
 
 
 import {  BrowserRouter,  Route, Routes, Link } from 'react-router-dom';

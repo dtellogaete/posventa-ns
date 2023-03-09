@@ -5,13 +5,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../App.css';
 
 /*Components*/
-import NavbarNs from './Nav';
-import Footer from './Footer';
+import NavbarNs from '../components/Nav';
+import Footer from '../components/Footer';
 
 
 /* Bootstrap */
-import { Container, Button, Form, Table, Row, Col} from 'react-bootstrap';
-
+import { Container, Button, Form, Table, Row, Col, Pagination} from 'react-bootstrap';
 
 /* Datos */
 import {getServices} from '../Data/table';
@@ -44,9 +43,8 @@ const handleClick = async (idservice, service) => {
   console.log(idservice)
   
   if (service === 'Capacitación'){
-    console.log("djashdskjdjsk")
-    const data = await getCapacitacionId(Number(idservice));
-    console.log("djashdskjdjsk")
+    console.log("capacitación")
+    const data = await getCapacitacionId(Number(idservice));    
     setData(data[0])  
     console.log(typeof(dataitem))
     createPDFCapa(dataitem);     
@@ -115,12 +113,33 @@ const handleFilter = (event) => {
   
   if (selectedCustomer !== "all"){
     filteredItems = filteredItems.filter(item => item.cliente === selectedCustomer);
-  }
-  
-
-  
+  }    
   setFilterItems(filteredItems);
 };
+
+/* Paginacion */
+  const itemsPerPage = 10;
+
+  const [activePage, setActivePage] = useState(1);
+
+  const handlePageChange = (pageNumber) => {
+    setActivePage(pageNumber);
+  }
+
+  const startIndex = (activePage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const pageData = items.slice(startIndex, endIndex);
+
+  const totalPages = Math.ceil(items.length / itemsPerPage);
+
+  const paginationItems = [];
+  for (let i = 1; i <= totalPages; i++) {
+    paginationItems.push(
+      <Pagination.Item key={i} active={i === activePage} onClick={() => handlePageChange(i)}>
+        {i}
+      </Pagination.Item>
+    );
+  }
 
   return (      
     <div className=" App FormService">          
@@ -130,6 +149,56 @@ const handleFilter = (event) => {
       
       <Row>
         <Col>
+       
+        </Col>
+        <Col>
+        <Table striped className="text-center p-6 sTable" style={{width: '100%', height: 'auto'}}>
+            <thead>
+              <tr>
+                <th onClick={() => handleSort("idservices")} >ID</th>
+                <th onClick={() => handleSort("cliente")}>Cliente</th>
+                <th onClick={() => handleSort("contact")}>Contacto</th>
+                <th onClick={() => handleSort("name")}>Software</th>
+                <th onClick={() => handleSort("service")}>Tipo</th>
+                <th onClick={() => handleSort("kind")}>Servicio</th>
+                <th onClick={() => handleSort("folio")}>Folio</th>
+                <th onClick={() => handleSort("date")}>Fecha</th>
+                <th onClick={() => handleSort("work")}>Elaboró</th>
+                <th >PDF</th>
+              </tr>
+            </thead>
+            <tbody>              
+            {pageData.map((item) => (
+           
+              <tr key={item.idservices}>
+                  <td>{item.idservices}</td>
+                  <td>{item.cliente}</td>
+                  <td>{item.contact}</td>
+                  <td>{item.name}</td>
+                  <td>{item.service}</td>
+                  <td>{item.kind}</td>
+                  <td>{item.folio}</td>
+                  <td>{formatDate(item.date)}</td>
+                  <td>{item.work}</td>
+                  <td><Button variant="primary" onClick={() =>handleClick(item.idservices, item.kind)}>PDF</Button></td>
+                </tr>
+            
+          ))}
+                   
+            </tbody>
+          </Table>
+          <Pagination>{paginationItems}</Pagination>
+        </Col>      
+      </Row>     
+      </Container>
+      <Footer style={{minHeight: '100vh'}}></Footer>         
+    </div>
+    
+  );
+}
+  
+export default Admin;
+/* 
         <h3>Filtros</h3>
           <Form  className="mb-3" style={{paddingTop: '15px'}}>
             <Form.Group className="mb-3" style={{diplay: 'flex'}} >
@@ -178,25 +247,9 @@ const handleFilter = (event) => {
             </Form.Group>
           </Form>
             
-        </Col>
-        <Col>
-        <Table striped className="text-center p-6 sTable" style={{width: '100%', height: 'auto'}}>
-            <thead>
-              <tr>
-                <th onClick={() => handleSort("idservices")} >ID</th>
-                <th onClick={() => handleSort("cliente")}>Cliente</th>
-                <th onClick={() => handleSort("contact")}>Contacto</th>
-                <th onClick={() => handleSort("name")}>Software</th>
-                <th onClick={() => handleSort("service")}>Tipo</th>
-                <th onClick={() => handleSort("kind")}>Servicio</th>
-                <th onClick={() => handleSort("folio")}>Folio</th>
-                <th onClick={() => handleSort("date")}>Fecha</th>
-                <th onClick={() => handleSort("work")}>Elaboró</th>
-                <th >PDF</th>
-              </tr>
-            </thead>
-            <tbody>              
-              {filterItems.map(item => (
+ */
+
+/* {filterItems.map(item => (
                 <tr key={item.idservices}>
                   <td>{item.idservices}</td>
                   <td>{item.cliente}</td>
@@ -208,17 +261,4 @@ const handleFilter = (event) => {
                   <td>{formatDate(item.date)}</td>
                   <td>{item.work}</td>
                   <td><Button variant="primary" onClick={() =>handleClick(item.idservices, item.kind)}>PDF</Button></td>
-                </tr>
-              ))}            
-            </tbody>
-          </Table>
-        </Col>      
-      </Row>     
-      </Container>
-      <Footer style={{minHeight: '100vh'}}></Footer>         
-    </div>
-    
-  );
-}
-  
-export default Admin;
+                </tr> */

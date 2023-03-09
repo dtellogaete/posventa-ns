@@ -5,8 +5,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '../App.css';
 
 /*Components*/
-import NavbarNs from './Nav';
-import Footer from './Footer';
+import NavbarNs from '../components/Nav';
+import Footer from '../components/Footer';
 import Axios from 'axios'
 
 /* Bootstrap */
